@@ -1,0 +1,139 @@
+openapi: 3.1.0
+info:
+  title: API de DNI español
+  description: Microservicio que calcula la letra de control de un DNI a partir de
+    su número y valida DNIs completos (8 dígitos + letra).
+  contact:
+    name: Grupo A3 DS
+    email: alrulu@correo.ugr.es
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+servers:
+- url: http://127.0.0.1:8000
+  description: Desarrollo local
+paths:
+  /dni/{numero}:
+    post:
+      tags:
+      - DNI
+      summary: Calcula la letra de un DNI
+      description: 'Calcula la letra de control a partir de la parte numérica del
+        DNI.
+
+
+        La letra se obtiene como la posición `numero % 23` en la tabla
+
+        `TRWAGMYFPDXBNJZSQVHLCKE`.
+
+
+        Si `numero` no es un entero o está fuera del rango permitido, la
+
+        petición se rechaza con **422 Unprocessable Entity**.'
+      operationId: calcularLetra
+      parameters:
+      - name: numero
+        in: path
+        required: true
+        schema:
+          type: integer
+          maximum: 99999999
+          minimum: 0
+          description: Parte numérica del DNI (entre 0 y 99999999).
+          examples:
+          - 12345678
+          title: Numero
+        description: Parte numérica del DNI (entre 0 y 99999999).
+      responses:
+        '200':
+          description: Número recibido y letra de control correspondiente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LetraResponse'
+        '422':
+          description: El número no es un entero o está fuera del rango 0-99999999.
+  /dni/validar:
+    get:
+      tags:
+      - DNI
+      summary: Valida un DNI completo
+      description: 'Comprueba si un DNI completo es válido.
+
+
+        Un DNI mal formado (longitud incorrecta, caracteres no numéricos, letra
+
+        que no coincide...) **no es un error de la petición**: se responde
+
+        **200 OK** con `valido: false`. Solo se devuelve **422** si falta el
+
+        parámetro `dni`.'
+      operationId: validarDni
+      parameters:
+      - name: dni
+        in: query
+        required: true
+        schema:
+          type: string
+          description: 'DNI completo: 8 dígitos y una letra. La letra puede ir en
+            mayúscula o minúscula.'
+          examples:
+          - 12345678Z
+          title: Dni
+        description: 'DNI completo: 8 dígitos y una letra. La letra puede ir en mayúscula
+          o minúscula.'
+      responses:
+        '200':
+          description: DNI recibido y resultado de la validación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidacionResponse'
+        '422':
+          description: Falta el parámetro de consulta `dni`.
+components:
+  schemas:
+    LetraResponse:
+      properties:
+        numero:
+          type: integer
+          title: Numero
+          description: Parte numérica del DNI.
+          examples:
+          - 12345678
+        letra:
+          type: string
+          maxLength: 1
+          minLength: 1
+          title: Letra
+          description: Letra de control calculada (mayúscula).
+          examples:
+          - Z
+      type: object
+      required:
+      - numero
+      - letra
+      title: LetraResponse
+      description: Resultado del cálculo de la letra de control.
+    ValidacionResponse:
+      properties:
+        dni:
+          type: string
+          title: Dni
+          description: DNI recibido, tal cual.
+          examples:
+          - 12345678Z
+        valido:
+          type: boolean
+          title: Valido
+          description: True si el formato es correcto y la letra coincide.
+      type: object
+      required:
+      - dni
+      - valido
+      title: ValidacionResponse
+      description: Resultado de la validación de un DNI completo.
+tags:
+- name: DNI
+  description: Operaciones de cálculo y validación del DNI español.
