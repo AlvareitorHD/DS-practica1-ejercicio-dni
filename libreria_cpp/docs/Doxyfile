@@ -1,0 +1,16 @@
+# Generar desde la carpeta libreria_cpp: doxygen docs/Doxyfile
+PROJECT_NAME           = "Biblioteca DNI C++"
+PROJECT_NUMBER         = "1.0.0"
+PROJECT_BRIEF          = "Calculo de letra y validacion de DNI espanoles"
+OUTPUT_DIRECTORY       = docs/generada
+INPUT                  = src/dni_utils.h
+FILE_PATTERNS          = *.h
+EXTRACT_ALL            = YES
+RECURSIVE              = NO
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARNINGS               = YES
+FULL_PATH_NAMES        = NO
+SOURCE_BROWSER         = YES
